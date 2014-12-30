@@ -11,7 +11,7 @@ var _ = require('lodash');
 
 var getConfig = function(){
   try {
-    return yaml.safeLoad(fs.readFileSync('./config.yml', 'utf8'));
+    return yaml.safeLoad(fs.readFileSync('~/.plow', 'utf8'));
   }
   catch (e){
     if(e instanceof YAMLException){
