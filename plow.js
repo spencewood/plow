@@ -14,10 +14,8 @@ var getConfig = function(){
     return yaml.safeLoad(fs.readFileSync('~/.plow', 'utf8'));
   }
   catch (e){
-    if(e instanceof YAMLException){
-      console.error(e);
-      exit();
-    }
+    console.error(e);
+    exit();
   }
 };
 
