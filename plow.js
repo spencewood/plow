@@ -33,7 +33,7 @@ var fileInfo = function(path, cb){
         path: path,
         isFile: stats.isFile(),
         isDirectory: stats.isDirectory()
-      })
+      });
     });
   });
 };
@@ -132,9 +132,9 @@ var runCommands = function(commands){
     bar.tick();
   };
 
-  return Promise.map(commands, function(command){
+  return Promise.reduce(commands, function(_, command){
     return execute(command).then(tick);
-  });
+  }, null);
 };
 
 var config = getConfig().plow;
