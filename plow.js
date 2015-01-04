@@ -91,16 +91,16 @@ var getConfig = function(configFile){
 //   }, []);
 // };
 
-var constructCommand = function(filter){
-  var command = _.reduce(config.vars, function(m, v){
-    return m.replace('%' + v.name + '%', v.value);
-  }, filter.filter.command);
-  return command.replace('%FILE_NAME%', filter.path);
-};
+// var constructCommand = function(filter){
+//   var command = _.reduce(config.vars, function(m, v){
+//     return m.replace('%' + v.name + '%', v.value);
+//   }, filter.filter.command);
+//   return command.replace('%FILE_NAME%', filter.path);
+// };
 
-var constructCommands = function(filters){
-  return _.map(filters, constructCommand);
-};
+// var constructCommands = function(filters){
+//   return _.map(filters, constructCommand);
+// };
 
 var execute = function(command){
   return new Promise(function(res, rej){

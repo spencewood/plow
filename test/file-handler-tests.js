@@ -31,7 +31,7 @@ describe('File handler', function(){
           match: 'test*',
           command: 'test'
         });
-      }.bind(this)).should.throw(Error);
+      }.bind(this)).should.throw(Error, /must be defined/);
     });
 
     it('should throw an exception for filters without a match', function(){
@@ -40,7 +40,7 @@ describe('File handler', function(){
           name: 'test',
           command: 'test'
         });
-      }.bind(this)).should.throw(Error);
+      }.bind(this)).should.throw(Error, /must be defined/);
     });
 
     it('should throw an exception for filters without a command', function(){
@@ -49,7 +49,7 @@ describe('File handler', function(){
           name: 'test',
           match: 'test*'
         });
-      }.bind(this)).should.throw(Error);
+      }.bind(this)).should.throw(Error, /must be defined/);
     });
   });
 
