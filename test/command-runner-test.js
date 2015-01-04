@@ -176,7 +176,16 @@ describe('Command runner', function(){
     });
 
     it('should be able to run a command with no tokens', function(done){
-
+      this.cr.addCommand({
+        name: 'echo',
+        run: 'echo %FILE_NAME%'
+      });
+      this.cr.parseFileCommands([{
+        path: './test/area2/test1.txt',
+        command: 'echo'
+      }]).then(function(commands){
+        commands[0].should.equal('echo ./test/area2/test1.txt')
+      }).then(done);
     });
   });
 });

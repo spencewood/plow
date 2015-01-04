@@ -15,22 +15,17 @@ var getConfig = function(configFile){
     return yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
   }
   catch (e){
-    console.error(e);
-    process.exit();
+    error(e);
   }
 };
 
+var error = function(err){
+  console.error('error', err)
+};
+
 var execute = function(command){
-  return new Promise(function(res, rej){
-    exec(command, function(err, stdout){
-      if(err){
-        rej(err);
-      }
-      else{
-        res(stdout);
-      }
-    });
-  });
+  var ex = Promise.promisify(exec);
+  return ex(command);
 };
 
 var runCommands = function(commands){
@@ -42,17 +37,13 @@ var runCommands = function(commands){
     }
   );
 
-  var tick = function(){
-    bar.tick();
-  };
-
   return Promise.reduce(commands, function(_, command){
-    return execute(command).then(tick);
+    return execute(command).then(tick.bind(bar));
   }, null);
 };
 
 program
-  .version('0.0.1')
+  .version('0.1.0')
   .option('-c, --config <path>', 'Set config path. Defaults to ~/.plow', process.env.HOME + '/.plow')
   .parse(process.argv);
 
@@ -68,6 +59,4 @@ run.addCommands(config.commands);
 handle.getFilesByFilter(program.args)
   .then(run.parseFileCommands.bind(run))
   .then(runCommands)
-  .catch(function(err){
-    console.error('error', err);
-  });
+  .catch(error);
