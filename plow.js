@@ -9,91 +9,87 @@ var ProgressBar = require('progress');
 var recursive = require('recursive-readdir');
 var _ = require('lodash');
 
-var getConfig = function(){
+var getConfig = function(configFile){
   try {
-    return yaml.safeLoad(fs.readFileSync(process.env.HOME + '/.plow', 'utf8'));
+    return yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
   }
   catch (e){
     console.error(e);
-    exit();
+    process.exit();
   }
 };
 
-var exit = function(){
-  process.exit();
-};
+// var fileInfo = function(path, cb){
+//   return new Promise(function(res, rej){
+//     fs.stat(path, function(err, stats){
+//       if(err){
+//         return rej(err);
+//       }
+//       return res({
+//         path: path,
+//         isFile: stats.isFile(),
+//         isDirectory: stats.isDirectory()
+//       });
+//     });
+//   });
+// };
 
-var fileInfo = function(path, cb){
-  return new Promise(function(res, rej){
-    fs.stat(path, function(err, stats){
-      if(err){
-        return rej(err);
-      }
-      return res({
-        path: path,
-        isFile: stats.isFile(),
-        isDirectory: stats.isDirectory()
-      });
-    });
-  });
-};
+// var parsePaths = function(paths){
+//   return Promise.map(paths, fileInfo);
+// };
 
-var parsePaths = function(paths){
-  return Promise.map(paths, fileInfo);
-};
+// var parsePathsRecursive = function(paths){
+//   var pluck = function(prop){
+//     return function(arr){
+//       return _.pluck(arr, prop);
+//     };
+//   };
 
-var parsePathsRecursive = function(paths){
-  var pluck = function(prop){
-    return function(arr){
-      return _.pluck(arr, prop);
-    };
-  };
+//   return parsePaths(paths).then(function(files){
+//       return files.filter(function(path){
+//         return path.isDirectory;
+//       });
+//     })
+//     .then(pluck('path'))
+//     .map(function(dir){
+//       return new Promise(function(res, rej){
+//         recursive(dir, function(err, files){
+//           if(err){
+//             return rej(err);
+//           }
+//           return res(files);
+//         });
+//       });
+//     })
+//     .then(_.flatten)
+//     .then(_.compact)
+//     .map(fileInfo);
+// };
 
-  return parsePaths(paths).then(function(files){
-      return files.filter(function(path){
-        return path.isDirectory;
-      });
-    })
-    .then(pluck('path'))
-    .map(function(dir){
-      return new Promise(function(res, rej){
-        recursive(dir, function(err, files){
-          if(err){
-            return rej(err);
-          }
-          return res(files);
-        });
-      });
-    })
-    .then(_.flatten)
-    .then(_.compact)
-    .map(fileInfo);
-};
+// var getFiltersByRegex = function(path){
+//   return config.filters.filter(function(filter){
+//     return path.match(new RegExp(filter.match));
+//   });
+// };
 
-var getFiltersByRegex = function(path){
-  return config.filters.filter(function(filter){
-    return path.match(new RegExp(filter.match));
-  });
-};
+// var getApplicableFilter = function(file){
+//   var filter = getFiltersByRegex(file.path);
+//   if(filter.length > 0){
+//     return _.extend(file, {
+//       filter: _.first(filter)
+//     });
+//   }
+// };
 
-var getApplicableFilter = function(file){
-  var filter = getFiltersByRegex(file.path);
-  if(filter.length > 0){
-    return _.extend(file, {
-      filter: _.first(filter)
-    });
-  }
-};
-
-var getApplicableFilters = function(files){
-  return _.reduce(files, function(memo, file){
-    var filter = getApplicableFilter(file);
-    if(filter != null){
-      memo.push(filter);
-    }
-    return memo;
-  }, []);
-};
+// var getApplicableFilters = function(files){
+//   return _.reduce(files, function(memo, file){
+//     var filter = getApplicableFilter(file);
+//     if(filter != null){
+//       memo.push(filter);
+//     }
+//     return memo;
+//   }, []);
+// };
 
 var constructCommand = function(filter){
   var command = _.reduce(config.vars, function(m, v){
@@ -137,11 +133,12 @@ var runCommands = function(commands){
   }, null);
 };
 
-var config = getConfig().plow;
-
 program
   .version('0.0.1')
+  .option('-c, --config <path>', 'Set config path. Defaults to ~/.plow', process.env.HOME + '/.plow')
   .parse(process.argv);
+
+var config = getConfig(program.config).plow;
 
 parsePathsRecursive(program.args)
   .then(getApplicableFilters)
@@ -149,7 +146,4 @@ parsePathsRecursive(program.args)
   .then(runCommands)
   .catch(function(err){
     console.error('error', err);
-  })
-  .then(function(){
-    exit();
   });
