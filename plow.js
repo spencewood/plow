@@ -37,8 +37,12 @@ var runCommands = function(commands){
     }
   );
 
+  var tick = function(){
+    bar.tick();
+  };
+
   return Promise.reduce(commands, function(_, command){
-    return execute(command).then(tick.bind(bar));
+    return execute(command).then(tick);
   }, null);
 };
 
@@ -56,7 +60,7 @@ var run = new Runner();
 run.addTokens(config.tokens);
 run.addCommands(config.commands);
 
-handle.getFilesByFilter(program.args)
+handle.getFilesByFilter.apply(handle, program.args)
   .then(run.parseFileCommands.bind(run))
   .then(runCommands)
   .catch(error);
