@@ -173,6 +173,10 @@ describe('Command runner', function(){
       }]).then(function(commands){
         commands[0].should.equal('echo ./test/');
       }).then(done);
-    })
+    });
+
+    it('should be able to run a command with no tokens', function(done){
+
+    });
   });
 });
